@@ -46,4 +46,5 @@ test.only('Login With Storage State', async({page})=>{
 
     const signInPage=new SignInPage(page);
     await signInPage.navigateToDashboard('https://rahulshettyacademy.com/client/#/dashboard/dash');
+    console.log("We Landed On Dashboard Page");
 })
