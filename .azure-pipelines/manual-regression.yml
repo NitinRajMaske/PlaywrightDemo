@@ -1,0 +1,21 @@
+# 1. This stops Azure DevOps from running this pipeline automatically
+trigger: none
+pr: none
+
+# 2. This chooses the machine type that will run your code (Ubuntu Linux)
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  # 3. This tells Azure to pull the absolute latest code from GitHub
+  - checkout: self
+    clean: true
+    displayName: 'Pull Latest Code from GitHub'
+
+  # 4. This is a placeholder step where your test commands will go
+  - script: |
+      echo "------------------------------------------------"
+      echo "Successfully pulled the latest code!"
+      echo "Ready to run regression suite."
+      echo "------------------------------------------------"
+    displayName: 'Run Regression Suite Placeholder'
