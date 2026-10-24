@@ -1,0 +1,42 @@
+# azure-pipelines.yml
+parameters:
+  - name: environmentSelection
+    displayName: 'Target Environment'
+    type: string
+    default: qa
+    values:
+      - qa
+      - uat
+
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  # Link the Variable Group you just created in the Library
+  - group: environment-passwords
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '20.x'
+    displayName: 'Install Node.js'
+
+  - script: npm ci
+    displayName: 'Install dependencies'
+
+  - script: npx playwright install --with-deps
+    displayName: 'Install Playwright Browsers'
+
+  - script: npx playwright test
+    displayName: 'Run Playwright Tests'
+    env:
+      # If you select 'qa' in the UI dropdown, it maps qa_password to TEST_PASSWORD
+      ${{ if eq(parameters.environmentSelection, 'qa') }}:
+        TEST_PASSWORD: $(qa_password)
+      
+      # If you select 'uat' in the UI dropdown, it maps uat_password to TEST_PASSWORD
+      ${{ if eq(parameters.environmentSelection, 'uat') }}:
+        TEST_PASSWORD: $(uat_password)
