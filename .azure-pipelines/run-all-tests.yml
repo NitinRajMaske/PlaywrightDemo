@@ -1,0 +1,43 @@
+# Disable automatic triggers for pushes and pull requests
+trigger: none
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  # 1. Pull the absolute latest code from GitHub
+  - checkout: self
+    clean: true
+    displayName: 'Pull Latest Code'
+
+  # 2. Setup Node.js environment
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '20.x'
+    displayName: 'Install Node.js'
+
+  # 3. Install clean project dependencies
+  - script: |
+      npm ci
+    displayName: 'Install NPM Dependencies'
+
+  # 4. Install all Playwright browsers and OS system packages
+  - script: |
+      npx playwright install --with-deps
+    displayName: 'Install Playwright Browsers & OS Dependencies'
+
+  # 5. Execute every single test in the workspace
+  - script: |
+      npx playwright test
+    displayName: 'Execute Full Test Suite'
+    env:
+      CI: 'true'
+
+  # 6. Publish the final test report back to Azure DevOps
+  - task: PublishHtmlReport@1
+    displayName: 'Publish Playwright HTML Report'
+    condition: always() # Ensures reports are generated even if tests fail
+    inputs:
+      reportDir: 'playwright-report'
+      tabName: 'Full Test Suite Report'
